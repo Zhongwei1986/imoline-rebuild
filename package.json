@@ -1,0 +1,20 @@
+{
+    "name": "chatrom",
+    "version": "1.0.0",
+    "description": "a chatrom built by node.js",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "nodejs",
+        "chatrom"
+    ],
+    "author": "zhouzhongwei",
+    "license": "MIT",
+    "dependencies": {
+        "express": "4.14.0",
+        "socket.io": "1.7.2",
+        "socket.io-client": "1.7.2"
+    }
+}
