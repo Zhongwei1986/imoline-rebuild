@@ -11,7 +11,7 @@ $(function() {
     var $window = $(window);
     var $usernameInput = $('.usernameInput');
     var $sysInfos = $('.sysInfos');
-    var $numUsers = $('#numUsers');
+    var $numUsers = $('.numUsers');
     var $userLists = $('.userLists');
     var $messages = $('.messages');
     var $inputMessage = $('.inputMessage');
@@ -132,7 +132,7 @@ $(function() {
         $numUsers.text('本聊天室有: ' + data.numUsers + ' 位用户');
         var $userListElement = $('<li class = "userList">').text(data.username)
             .data('username', data.username);
-        $userList.append($userListElement);
+        $userLists.append($userListElement);
     }
 
     //用户列表清除用户
@@ -276,6 +276,13 @@ $(function() {
         addSysInfo(msg);
     });
 
+    socket.on('add userList', function(data) {
+        addUserList(data);
+    })
+
+    socket.on('remove userList', function(data) {
+        removeUserList(data);
+    })
     socket.on('new message', function(data) {
         addChatMessage(data);
     });
