@@ -3,37 +3,44 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Socket.IO Chat Example</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>imOline ChatRoom</title>
+    <!--<link rel="stylesheet" href="css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="css/main.css">
 </head>
 
 <body>
-    <ul class="pages">
-        <li class="chat page">
-            <div class="sysInfoArea">
-                <ul class="sysInfos"></ul>
-            </div>
-            <div class="chatArea">
-                <ul class="messages"></ul>
-            </div>
-            <div class="userListArea">
-                <h3 class="numUsers"></h3>
-                <ul class="userLists"></ul>
-            </div>
-            <input class="inputMessage" placeholder="在此输入..." />
-            <input type="button" class="clearBtn" value="清屏">
-        </li>
-        <li class="login page">
+    <div class="pages">
+        <div class="login page">
             <div class="form">
                 <h3 class="title">请输入您的昵称</h3>
                 <input class="usernameInput" type="text" maxlength="14" />
             </div>
-        </li>
-    </ul>
+
+        </div>
+        <div class="chat page">
+            <div class="m-left">
+                <div class="sysInfoArea">
+                    <ul class="sysInfos"></ul>
+                </div>
+                <div class="chatArea">
+                    <ul class="messages"></ul>
+                </div>
+                <input class="inputMessage" placeholder="在此输入..." />
+                <input type="button" class="clearBtn" value="清屏">
+            </div>
+            <div class="m-right">
+                <h3 class="numUsers"></h3>
+                <ul class="userLists"></ul>
+            </div>
+        </div>
+    </div>
 
     <!-- <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script> -->
     <!-- 引入本地jQuery库，以防CDN无法使用 -->
     <script src="js/jquery.min.js"></script>
+    <!--<script src="js/bootstrap.min.js"></script>-->
     <script src="js/socket.io.min.js"></script>
     <script src="js/main.js"></script>
 </body>

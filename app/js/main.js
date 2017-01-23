@@ -43,7 +43,7 @@ $(function() {
         clientName = '';
         var $form = $(".form");
         var $prompt = $('<p class = "prompt">')
-            .css('color', 'yellow')
+            .css('color', 'red')
             .text(msg);
         $form.append($prompt);
         setTimeout(function() {
@@ -67,7 +67,7 @@ $(function() {
 
     //添加系统信息
     function addSysInfo(msg) {
-        var $sysInfoEl = $('<li>').addClass('sysInfo').css('color', 'red');
+        var $sysInfoEl = $('<li>').addClass('sysInfo');
         if (msg) {
             $sysInfoEl.text('系统:  ' + msg);
             $sysInfos.append($sysInfoEl);
@@ -81,7 +81,7 @@ $(function() {
         var fade = true;
         if ($typingMessages.length !== 0) {
             fade = false;
-            $typingMessages.remove()
+            $typingMessages.remove();
         }
 
         var typingClass = data.typing ? 'typing' : '';
@@ -129,7 +129,7 @@ $(function() {
 
     //用户列表增加用户
     function addUserList(data) {
-        $numUsers.text('本聊天室有: ' + data.numUsers + ' 位用户');
+        $numUsers.text(data.numUsers + '位用户在线:');
         var $userListElement = $('<li class = "userList">').text(data.username)
             .data('username', data.username);
         $userLists.append($userListElement);
@@ -137,7 +137,7 @@ $(function() {
 
     //用户列表清除用户
     function removeUserList(data) {
-        $numUsers.text('本聊天室有: ' + data.numUsers + ' 位用户');
+        $numUsers.text(data.numUsers + '位用户在线:');
         $('.userList').filter(function(i) {
             return $(this).data('username') === data.username;
         }).remove();
@@ -278,11 +278,11 @@ $(function() {
 
     socket.on('add userList', function(data) {
         addUserList(data);
-    })
+    });
 
     socket.on('remove userList', function(data) {
         removeUserList(data);
-    })
+    });
     socket.on('new message', function(data) {
         addChatMessage(data);
     });
