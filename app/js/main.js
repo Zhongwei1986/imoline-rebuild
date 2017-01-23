@@ -1,56 +1,46 @@
-$(function() {
-
-    //初始化常量
+$(function() {   
     var FADE_TIME = 150; // ms
     var TYPING_TIMER_LENGTH = 400; // ms
-    var COLORS = [ // 颜色值数组
+    var COLORS = [ 
         '#e21400', '#91580f', '#f8a700', '#f78b00',
         '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
         '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
     ];
-
     
+    //DOM节点
     var $window = $(window); 
     var $usernameInput = $('.usernameInput'); 
+    var $sysInfo = $('.sysInfo');
     var $messages = $('.messages'); 
     var $inputMessage = $('.inputMessage');
-
     var $loginPage = $('.login.page'); 
     var $chatPage = $('.chat.page'); 
-
     
+    //全局变量
     var clientName; 
     var connected = false;
     var typing = false;
     var lastTypingTime;
     var $currentInput = $usernameInput.focus();
-    
+
+    //创建socket.io的客户端socket对象  
     var socket = io();
-
     
-    function addParticipantsMessage(data) {
-        var message = '';
-        if (data.numUsers === 1) {
-            message += "聊天室有 1 位用户";
-        } else {
-            message += "聊天室有 " + data.numUsers + " 位用户";
-        }
-        log(message); 
-    }
-
-   
-    function checkUsername() {
+    /*登录相关*/    
+    //添加用户  
+    function addUser() {
         clientName = cleanInput($usernameInput.val().trim());
         if (clientName) {
-            socket.emit('check username', clientName);
+            socket.emit('add user', clientName);
         }
     }
-    
+
+    //用户名重复，修改用户名
     function changeUsername(msg) {
         clientName = '';
         var $form = $(".form");
         var $prompt = $('<p class = "prompt">')
-            .css('color', 'red')
+            .css('color', 'yellow')
             .text(msg);
         $form.append($prompt);
         setTimeout(function() {
@@ -58,7 +48,7 @@ $(function() {
         }, 500);
     }
 
-    
+    //登录成功
     function loginSuccess() {
         if (clientName) {
             $loginPage.fadeOut(); 
@@ -67,7 +57,111 @@ $(function() {
             $currentInput = $inputMessage.focus();           
         }
     }
+
+    /*DOM操作*/
+    //聊天框内容转移，避免注入攻击
+    function cleanInput(input) {
+        return $('<div/>').html(input).text();
+    }    
+
+    //添加系统信息
+    function addSysInfo(data) {       
+        var $sysElement = $('<li>').addClass('log').css('color','yellow'); 
+        if (data.msg) {            
+            $sysElement.text('系统:  ' + data.msg);
+            $sysInfo.append($sysElement);
+        }
+    }    
+
+    //增加聊天信息节点
+    function addChatMessage(data) {
+        var $typingMessages = getTypingMessages(data);
+        var fade = true; 
+        if ($typingMessages.length !== 0) {
+            fade = false;
+            $typingMessages.remove();
+        }
+
+        var typingClass = data.typing ? typing : '' ;        
+        var $usernameDiv = $('<span class="username"/>').text(data.from + ": ")
+                                .css('color', getUsernameColor(data.from)); 
+        var $messageBodyDiv = $('<span class="messageBody">').text(data.msg); 
+        var $messageDiv = $('<li class="message"/>').data('username', data.from);        
+       
+        if (data.from !== clientName) { //非本人发出信息
+            if (data.mode == 'private') { //其它用户私聊
+                $usernameDiv.dbclick(function() {
+                        $inputMessage.val('@' + data.from + ': ' + $inputMessage.val()).focus();
+                    });
+                $messageBodyDiv.css('color', 'blue');
+            } else if (data.mode == 'public') { //公聊
+                if (typingClass) {
+
+                } else {
+
+                }
+                $usernameDiv.dblclick(function() {
+                    $inputMessage.val('@' + data.from + ': ' + $inputMessage.val()).focus();
+                });
+            } else { 
+                $messageBodyDiv.css('color', 'yellow');
+            }
+            $messageDiv.append($usernameDiv, $messageBodyDiv);
+        } else { 
+            if (data.mode === 'private') { //如果是私聊
+                $messageBodyDiv.css('color', 'blue');
+            }
+            $messageDiv.append($usernameDiv, $messageBodyDiv).addClass("right");
+        }
+
+        if (fade) { 
+            $messageDiv.hide().fadeIn(FADE_TIME); 
+        }
+        $messages.append($messageDiv);
+        $messages[0].scrollTop = $messages[0].scrollHeight; //滚动条滚到最底部
+    }
+
+
+
+
+    /*改变状态*/
+
+    //增加'XX正在输入',data.from = socketIds
+    function addTypingStatus(data) {
+        data.typing = true;
+        data.mode = 'public'
+        data.msg = '正在输入'
+        addChatMessage(data);
+    }
+
+    //取消'XX正在输入'
+    function removeTypingStatus(data) {
+        getTypingMessages(data).fadeOut(function() {
+            $(this).remove();
+        });
+    }
+
+    //获得“xx正在输入”的节点
+    function getTypingMessages(data) {        
+        return $('.typing.message').filter(function(i) {            
+            return $(this).data('username') === data.from;
+        });
+    }
+
     
+    //获得用户名颜色
+    function getUsernameColor(username) {        
+        var hash = 7; 
+        for (var i = 0; i < username.length; i++) {
+            hash = username.charCodeAt(i) + (hash << 5) - hash;
+        }        
+        var index = Math.abs(hash % COLORS.length);
+        return COLORS[index];
+    }
+
+
+    /*对外输出消息*/
+    //发送信息
     function sendMessage() {
         var message = $inputMessage.val();        
         message = cleanInput(message);        
@@ -89,107 +183,12 @@ $(function() {
             }
             socket.emit('new message', data);
         }
-    }
+    }   
 
-   
-    function log(message, options) {
-        var $el = $('<li>').addClass('log').text(message);        
-        addMessageElement($el, options); 
-    }
-    
-    function addChatMessage(data, options) {        
-        var $typingMessages = getTypingMessages(data); 
-        options = options || {}; 
-        if ($typingMessages.length !== 0) {
-            options.fade = false; 
-            $typingMessages.remove(); 
-        }
-        
-        var $usernameDiv = $('<span class="username"/>') 
-            .text(data.from); 
-        var $messageBodyDiv = $('<span class="messageBody">') 
-            .text(data.msg); 
-        var $messageDiv = $('<li class="message"/>') 
-            .data('username', data.from); 
-        
-        var typingClass = data.typing ? 'typing' : ''; 
-        if (data.from !== clientName) { 
-            $messageDiv.append($usernameDiv, $messageBodyDiv);
-            if (data.mode == 'system') { 
-                $messageDiv.css('color', "red");
-            } else if (data.mode == 'private') { 
-                $usernameDiv.css('color', getUsernameColor(data.from))
-                    .dbclick(function() {
-                        $inputMessage.val('@' + data.from + ': ' + $inputMessage.val()).focus();
-                    });
-                $messageBodyDiv.css('color', 'blue');
-            } else if (typingClass) { 
-                $usernameDiv.css('color', getUsernameColor(data.from));
-                $messageDiv.addClass(typingClass);
-            } else { 
-                $usernameDiv.css('color', getUsernameColor(data.from));
-                $usernameDiv.dblclick(function() {
-                    $inputMessage.val('@' + data.from + ': ' + $inputMessage.val()).focus();
-                });
-            }
-        } else { 
-            $messageDiv.append($usernameDiv, $messageBodyDiv).addClass("right");
-            $usernameDiv.css('color', getUsernameColor(data.from));
-            if (data.mode === 'private') {
-                $messageBodyDiv.css('color', 'blue');
-            }
-        }
-
-        addMessageElement($messageDiv, options);
-
-    }
-
-    
-    function addChatTyping(data) {
-        data.typing = true;
-        addChatMessage(data);
-    }
-
-    
-    function removeChatTyping(data) {
-        getTypingMessages(data).fadeOut(function() {
-            $(this).remove();
-        });
-    }
-   
-
-    function addMessageElement(el, options) {
-        var $el = $(el);       
-        if (!options) {
-            options = {};
-        }
-        if (typeof options.fade === 'undefined') {
-            options.fade = true;
-        }
-        if (typeof options.prepend === 'undefined') {
-            options.prepend = false;
-        }
-
-        
-        if (options.fade) { 
-            $el.hide().fadeIn(FADE_TIME); 
-        }
-        if (options.prepend) {
-            $messages.prepend($el);
-        } else {
-            $messages.append($el); 
-        }
-        $messages[0].scrollTop = $messages[0].scrollHeight;
-    }
-    
-    function cleanInput(input) {
-        return $('<div/>').html(input).text();
-    }
-
-    
+    //发送输入状态
     function updateTyping() {
         var mode = $inputMessage.val().match(/^@([\S]+):/);
-        if (connected && (!mode)) {        
+        if (connected && (!mode)) {   //公聊状态才发送输入状态     
             if (!typing) { 
                 typing = true; 
                 socket.emit('typing'); 
@@ -207,23 +206,9 @@ $(function() {
         }
     }
     
-    function getTypingMessages(data) {        
-        return $('.typing.message').filter(function(i) {            
-            return $(this).data('username') === data.from;
-        });
-    }
-    
-    function getUsernameColor(username) {        
-        var hash = 7; 
-        for (var i = 0; i < username.length; i++) {
-            hash = username.charCodeAt(i) + (hash << 5) - hash;
-        }        
-        var index = Math.abs(hash % COLORS.length);
-        return COLORS[index];
-    }
+    /*用户交互*/
 
     // Keyboard 事件
-
     $window.keydown(function(event) {        
         if (!(event.ctrlKey || event.metaKey || event.altKey)) {
             $currentInput.focus(); 
@@ -235,7 +220,7 @@ $(function() {
                 socket.emit('stop typing'); 
                 typing = false; 
             } else { 
-                checkUsername();
+                addUser();
             }
         }
     });
@@ -254,18 +239,19 @@ $(function() {
         $inputMessage.focus();
     });
     
-    socket.on('username exists', function(msg) {
-        changeUsername(msg);
+
+
+    /*状态监听*/
+
+    socket.on('username exists', function(data) {
+        changeUsername(data.msg);
     });
     
-    socket.on('login', function(data) {
+    socket.on('login success', function(data) {
         loginSuccess();
         connected = true;      
-        var message = "– 欢迎来到imOline –";
-        log(message, {
-            prepend: true
-        });
-        addParticipantsMessage(data);
+        data.msg = "– 欢迎来到imOline –";
+        addSysInfo(data);
     });
     
     socket.on('new message', function(data) {
@@ -273,22 +259,22 @@ $(function() {
     });
     
     socket.on('user joined', function(data) {
-        log(data.username + ' 已加入!');
-        addParticipantsMessage(data);
+        data.msg = data.username + ' 已加入!';
+        addSysInfo(data);
     });
     
     socket.on('user left', function(data) {
         log(data.username + ' 已离开!');
-        addParticipantsMessage(data);
-        removeChatTyping(data);
+        addSysInfo(data);
+        removeTypingStatus(data);
     });
     
     socket.on('typing', function(data) {
-        addChatTyping(data);        
+        addTypingStatus(data);        
     });
     
     socket.on('stop typing', function(data) {
-        removeChatTyping(data);
+        removeTypingStatus(data);
     });
 
     socket.on('disconnect', function() {
@@ -298,7 +284,7 @@ $(function() {
     socket.on('reconnect', function() {
         log('您已经重新连接');
         if (clientName) {
-            socket.emit('check username', clientName);
+            socket.emit('add user', clientName);
         }
     });
 
