@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>imOline ChatRoom</title>
     <!--<link rel="stylesheet" href="css/bootstrap.min.css">-->
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
@@ -27,12 +27,16 @@
                 <div class="chatArea">
                     <ul class="messages"></ul>
                 </div>
-                <input class="inputMessage" placeholder="在此输入..." />
-                <input type="button" class="clearBtn" value="清屏">
+                <div class="inputArea">
+                   <input class="inputMessage" placeholder="在此输入..." />
+                    <input type="button" class="clearBtn" value="清屏"> 
+                </div>                
             </div>
             <div class="m-right">
-                <h3 class="numUsers"></h3>
-                <ul class="userLists"></ul>
+                <div class="userListArea">
+                    <h3 class="numUsers">1</h3>
+                    <ul class="userLists"></ul>
+                </div>                
             </div>
         </div>
     </div>
