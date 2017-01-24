@@ -130,15 +130,24 @@ $(function() {
     }
 
     //用户列表增加用户
-    function addUserList(data) {
+    function addUserList(data) {       
         $numUsers.text(data.numUsers + '位用户在线:');
-        var $userListElement = $('<li class = "userList">').text(data.username)
-            .data('username', data.username);
-        $userLists.append($userListElement);
+        $('.userList').remove();
+        var userNames = data.unames; 
+        var users = [];     
+        for(var key in userNames){            
+            users.push(userNames[key]);
+        }
+        users=users.sort();
+        for(var i = 0, max = users.length; i< max; i++){
+          var $userListElement = $('<li class = "userList">').text(users[i])
+                .data('username', users[i]);            
+            $userLists.append($userListElement);     
+        }                 
     }
 
     //用户列表清除用户
-    function removeUserList(data) {
+    function removeUserList(data) {       
         $numUsers.text(data.numUsers + '位用户在线:');
         $('.userList').filter(function(i) {
             return $(this).data('username') === data.username;

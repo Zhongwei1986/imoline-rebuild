@@ -39,9 +39,9 @@ io.on("connection", function(socket) {
 
         socket.broadcast.emit('user joined', socketId);
 
-        io.sockets.emit('add userList', { //增加用户列表
-            username: socketId,
-            numUsers: numUsers
+        io.sockets.emit('add userList',{
+            numUsers: numUsers,
+            unames: unames    
         });
     });
 
@@ -53,8 +53,8 @@ io.on("connection", function(socket) {
             delete usockets[socketId];
             socket.broadcast.emit('user left', socketId);
             socket.broadcast.emit('remove userList', {
-                username: socketId,
                 numUsers: numUsers,
+                username: socketId    
             });
         }
     });
