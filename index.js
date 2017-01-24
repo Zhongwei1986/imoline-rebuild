@@ -25,7 +25,7 @@ io.on("connection", function(socket) {
         if (addedUser) return;
         if (username in unames) {
             socket.emit('username exists', {
-                msg: '昵称已存在,请更换其它昵称'
+                msg: '昵称已存在,请更换昵称'
             });
             return;
         }

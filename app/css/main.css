@@ -51,20 +51,35 @@ ul {
 
 
 /*login page*/
-.login.page {
-    display: none;
-    align-items: center; 
-    justify-content: center;  
+div.login.page {
+    position: absolute;    
+    font-size: 150%;
+    text-align: center;    
 }
-.login.page{
-    font-size: 150%;   
+.login.page .form {
+    position: absolute;   
+    height: 100px;
+    width: 300px;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -150px;      
 }
 
-
-.login.page .usernameInput {
+.login.page .title {
+    height: 35px;   
+    vertical-align: middle;   
+}
+.login.page .usernameInput {   
     width: 80%;
-    height: 30px;
-    margin-top: 30px;
+    height: 30px; 
+    margin-top: 20px; 
+}
+
+.login.page p.prompt {
+    text-align: center;
+    width: 100%;
+    font-size:1.2rem; 
 }
 
 
@@ -79,9 +94,8 @@ ul {
 .chat.page .m-left {
     float: left;  
     width: 70%;
-    height: 100%;    
-    display: flex;
-    flex-direction : column;    
+    height: 100%;  
+    position: absolute;
 }
 
 .chat.page .m-right {
@@ -93,26 +107,34 @@ ul {
 /*.m-left*/
 .m-left div {
     margin:5px;
+    width: 100%; 
 }
 
 /*.m-left .sysInfoArea*/
 .m-left .sysInfoArea {
-    height: 20%;
+    position: absolute;
+    height: 100px;
     border: 1px solid black;
     border-radius: 5px;
+    overflow-y: auto;   
 }
+
 
 /*.m-left .chatArea*/
 .m-left .chatArea {
-    flex: auto;
+    position: absolute;
+    top:110px;
+    bottom: 50px;    
     border: 1px solid black;
     border-radius: 5px;
+    overflow-y: auto;    
 }
-
 
 /*.m-left .inputArea*/
 .m-left div.inputArea{
-    height: 6%;   
+    position: absolute;
+    height: 35px;
+    bottom: 5px;   
     display: flex;
     flex-direction: row;
     padding: 0;
@@ -138,8 +160,9 @@ ul {
 .m-right div {
     margin: 5px;
     height: 90%;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     border-radius: 5px;
+    overflow: auto;
 }
 
 .m-right h3 {

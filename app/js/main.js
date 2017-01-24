@@ -44,11 +44,11 @@ $(function() {
         var $form = $(".form");
         var $prompt = $('<p class = "prompt">')
             .css('color', 'red')
-            .text(msg);
+            .text(msg);        
         $form.append($prompt);
         setTimeout(function() {
-            $prompt.fadeOut();
-        }, 500);
+            $prompt.fadeOut().remove();
+        }, 600);           
     }
 
     //登录成功
@@ -72,7 +72,8 @@ $(function() {
             $sysInfoEl.text('系统:  ' + msg);
             $sysInfos.append($sysInfoEl);
         }
-        $sysInfos[0].scrollTop = $sysInfos[0].scrollHeight;
+        var $sysInfoArea = $('.sysInfoArea') ;
+        $sysInfoArea[0].scrollTop = $sysInfoArea[0].scrollHeight;
     }
 
     //增加聊天区域显示内容
@@ -119,7 +120,8 @@ $(function() {
             $messageDiv.hide().fadeIn(FADE_TIME);
         }
         $messages.append($messageDiv);
-        $messages[0].scrollTop = $messages[0].scrollHeight; //滚动条滚到最底部
+        var $chatArea = $('.chatArea');      
+        $chatArea[0].scrollTop= $chatArea[0].scrollHeight; //滚动条滚到最底部
     }
 
     //清空聊天区域
@@ -239,7 +241,7 @@ $(function() {
                 sendMessage();
                 socket.emit('stop typing');
                 typing = false;
-            } else {
+            } else if(!$('.prompt')[0]){
                 checkUsername();
             }
         }
