@@ -24,6 +24,7 @@ $(function() {
     var connected = false;
     var typing = false;
     var lastTypingTime;
+    var lastTimeStamp="";
     var $currentInput = $usernameInput.focus();
 
     //创建socket.io的客户端socket对象  
@@ -86,12 +87,14 @@ $(function() {
         }
 
         var typingClass = data.typing ? 'typing' : '';
-        var $usernameDiv = $('<span class="username"/>').text(data.from + ": ")
+        var $usernameDiv = $('<span class="username"/>')
             .css('color', getUsernameColor(data.from));
-        var $messageBodyDiv = $('<span class="messageBody">').text(data.msg);
+        var $messageBodyDiv = $('<span class="messageBody">');
         var $messageDiv = $('<li class="message"/>').data('username', data.from);
 
         if (data.from !== clientName) { //非本人发出信息
+            $usernameDiv.text(data.from + ":  ");
+            $messageBodyDiv.text(data.msg);
             if (data.mode == 'private') { //其它用户私聊
                 $usernameDiv.click(function() {
                     $inputMessage.val('@' + data.from + ': ' + $inputMessage.val()).focus();
@@ -110,10 +113,12 @@ $(function() {
             }
             $messageDiv.append($usernameDiv, $messageBodyDiv);
         } else {
+            $usernameDiv.text("  :" + data.from);
+            $messageBodyDiv.text(data.msg);
             if (data.mode === 'private') { //如果是私聊
                 $messageBodyDiv.css('color', 'blue');
             }
-            $messageDiv.append($usernameDiv, $messageBodyDiv).addClass("right");
+            $messageDiv.append($messageBodyDiv, $usernameDiv).addClass("selfMessage");
         }
 
         if (fade) {
@@ -123,6 +128,8 @@ $(function() {
         var $chatArea = $('.chatArea');      
         $chatArea[0].scrollTop= $chatArea[0].scrollHeight; //滚动条滚到最底部
     }
+
+    
 
     //清空聊天区域
     function clearChatMessage() {
@@ -191,6 +198,20 @@ $(function() {
         return COLORS[index];
     }
 
+    //获得时间戳
+    function getTimeStamp () {
+        var date  = new Date();
+        var H = date.getHours();
+        H = H < 10 ? "0"+H : H;
+        var m = date.getMinutes();
+        m = m < 10 ? "0" + m : m;      
+        var timeStamp = H + ":" + m;      
+        if(lastTimeStamp != timeStamp){
+            var $timeStampDiv = $('<li class="message timeStamp">'); 
+            $messages.append($timeStampDiv.text(timeStamp));
+            lastTimeStamp = timeStamp;
+        }
+    }
 
     /*对外输出消息*/
     //发送信息
@@ -294,7 +315,8 @@ $(function() {
     socket.on('remove userList', function(data) {
         removeUserList(data);
     });
-    socket.on('new message', function(data) {
+    socket.on('new message', function(data) {       
+        getTimeStamp();
         addChatMessage(data);
     });
 

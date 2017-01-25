@@ -129,6 +129,10 @@ div.login.page {
     padding: 5px;   
 }
 
+.chatArea .selfMessage {
+    text-align: right;
+}
+
 .chatArea li {
     font-size: 1.2rem;
 }
@@ -174,4 +178,10 @@ div.login.page {
 .m-right .userList {
     margin-top: 5px;
     margin-bottom: 5px;
+}
+
+/*时间戳信息*/
+
+li.timeStamp {
+    text-align: center;
 }
